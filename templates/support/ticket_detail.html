@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+  <h2>{{ ticket.subject }}</h2>
+  <p>Status: <strong>{{ ticket.status }}</strong></p>
+
+  <div class="chat">
+    {% for msg in messages %}
+      <div class="chat-message {% if msg.is_admin %}admin{% else %}user{% endif %}">
+        <strong>{% if msg.is_admin %}Admin{% else %}You{% endif %}</strong>
+        <p>{{ msg.message }}</p>
+      </div>
+    {% endfor %}
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.message }}
+    <button class="btn" type="submit">Send</button>
+  </form>
+</div>
+{% endblock %}

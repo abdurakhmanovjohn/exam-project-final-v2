@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Transactions" %}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>{% trans "All Transactions" %}</h1>
+</div>
+
+<div class="card filter-card">
+  <form method="get" class="filter-form">
+    <div class="filter-grid">
+      <div>
+        <label>Type</label>
+        {{ form.tx_type }}
+      </div>
+
+      <div>
+        <label>Wallet</label>
+        {{ form.wallet }}
+      </div>
+
+      <div>
+        <label>From</label>
+        {{ form.date_from }}
+      </div>
+
+      <div>
+        <label>To</label>
+        {{ form.date_to }}
+      </div>
+
+      <div class="filter-btn">
+        <button class="btn btn-primary" type="submit">
+          Filter
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>{% trans "Type" %}</th>
+      <th>{% trans "Details" %}</th>
+      <th>{% trans "Amount" %}</th>
+      <th>{% trans "Date" %}</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for tx in transactions %}
+      <tr>
+
+        <td>
+          {% if tx.tx_type == "income" %}
+            <span class="badge success">{% trans "Income" %}</span>
+          {% elif tx.tx_type == "expense" %}
+            <span class="badge danger">{% trans "Expense" %}</span>
+          {% else %}
+            <span class="badge info">{% trans "Transfer" %}</span>
+          {% endif %}
+        </td>
+
+        <td>
+          {% if tx.tx_type == "income" %}
+            {{ tx.category }} → {{ tx.wallet.name }}
+          {% elif tx.tx_type == "expense" %}
+            {{ tx.category }} ← {{ tx.wallet.name }}
+          {% else %}
+            {{ tx.from_wallet.name }} → {{ tx.to_wallet.name }}
+          {% endif %}
+        </td>
+
+        <td>
+          {% if tx.tx_type == "income" %}
+            <span class="text-success">
+              +{{ tx.amount }} {{ tx.currency }}
+            </span>
+          {% elif tx.tx_type == "expense" %}
+            <span class="text-danger">
+              −{{ tx.amount }} {{ tx.currency }}
+            </span>
+          {% else %}
+            {{ tx.amount_from }} {{ tx.from_wallet.currency }}
+          {% endif %}
+        </td>
+
+        <td>{{ tx.created_at|date:"Y-m-d H:i" }}</td>
+
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="4" class="muted">
+          {% trans "No transactions yet" %}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

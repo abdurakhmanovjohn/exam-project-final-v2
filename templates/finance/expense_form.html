@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Add Expense{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+  <h2>Add Expense</h2>
+
+  <form method="post">
+    {% csrf_token %}
+
+    {{ form.category }}
+    {{ form.wallet }}
+    {{ form.amount }}
+    {{ form.currency }}
+    {{ form.date }}
+
+    <button type="submit">Save</button>
+  </form>
+</div>
+{% endblock %}

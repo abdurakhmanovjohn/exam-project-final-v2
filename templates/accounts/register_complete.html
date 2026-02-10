@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Complete Registration{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+  <h2>Create Account</h2>
+
+  <p style="font-size:14px; color:#6b7280;">
+    Phone number:
+    <strong>{{ phone_number }}</strong>
+  </p>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.first_name.label_tag }}
+    {{ form.first_name }}
+
+    {{ form.last_name.label_tag }}
+    {{ form.last_name }}
+
+    {{ form.password1.label_tag }}
+    {{ form.password1 }}
+
+    {{ form.password2.label_tag }}
+    {{ form.password2 }}
+
+    <button type="submit">Create Account</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<h2>Login</h2>
+
+<form method="post">
+  {% csrf_token %}
+
+  <p>
+    <label>Phone number</label>
+    <input type="text" name="phone_number" required>
+  </p>
+
+  <p>
+    <label>Password</label>
+    <input type="password" name="password" required>
+  </p>
+
+  <button type="submit" class="login_btn">Login</button>
+</form>
+
+<div class="link">
+  Don’t have an account?
+  <a href="{% url 'accounts:register_phone' %}">Register</a>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Category{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+  <h2>Add Category</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.name }}
+    <button type="submit">Save</button>
+  </form>
+</div>
+{% endblock %}

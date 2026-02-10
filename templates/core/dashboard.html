@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Dashboard</h1>
+
+<div class="stats-grid">
+    <div class="stat-card">
+      <p>Total Balance</p>
+      <h2>{{ total_balance|floatformat:2 }} {{ base_currency }}</h2>
+    </div>
+    
+    <div class="stat-card green">
+      <p>This Month Income</p>
+      <h2>+ {{ income_total }} {{ base_currency }}</h2>
+    </div>
+    
+    <div class="stat-card red">
+      <p>This Month Expense</p>
+      <h2>- {{ expense_total }} {{ base_currency }}</h2>
+    </div>
+</div>
+
+<h2 class="section-title">Your Wallets</h2>
+
+{% if wallets %}
+<div class="wallet-grid">
+  {% for wallet in wallets %}
+    <div class="wallet-card">
+      <h3>{{ wallet.name }}</h3>
+      <p class="wallet-balance">{{ wallet.balance }} {{ wallet.currency }}</p>
+      <a href="{% url 'wallets:edit' wallet.id %}" class="link">Edit</a>
+    </div>
+  {% endfor %}
+</div>
+{% else %}
+  <p>You don’t have any wallets yet.</p>
+{% endif %}
+{% endblock %}

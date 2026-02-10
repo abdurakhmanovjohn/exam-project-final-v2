@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Wallets" %}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>{% trans "Your Wallets" %}</h1>
+  <a href="{% url 'wallets:create' %}" class="btn btn-primary">
+    + {% trans "Add Wallet" %}
+  </a>
+</div>
+
+<div class="wallet-grid">
+  {% for wallet in wallets %}
+    <div class="wallet-card">
+      <div class="wallet-title">
+        {{ wallet.name }}
+      </div>
+
+      <div class="wallet-balance">
+        {{ wallet.balance }} {{ wallet.currency }}
+      </div>
+
+      <div class="wallet-actions">
+        <a href="{% url 'wallets:edit' wallet.id %}">{% trans "Edit" %}</a>
+        {% if wallets|length > 1 %}
+          <a href="{% url 'wallets:transfer' %}?from={{ wallet.id }}">
+            {% trans "Transfer" %}
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  {% empty %}
+    <p class="muted">{% trans "No wallets yet" %}</p>
+  {% endfor %}
+</div>
+{% endblock %}

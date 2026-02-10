@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Categories{% endblock %}
+
+{% block content %}
+<h2>
+  {% if category_type == "income" %}Income Categories{% else %}Expense Categories{% endif %}
+</h2>
+
+<div style="margin-bottom:20px;">
+  <a href="{% url 'finance:category_create' category_type %}">
+    <button style="width:auto; padding:10px 16px;">+ Add Category</button>
+  </a>
+</div>
+
+{% if categories %}
+  <div class="card">
+    <ul style="list-style:none; padding:0;">
+      {% for category in categories %}
+        <li style="padding:10px 0; border-bottom:1px solid #e5e7eb;">
+          {{ category.name }}
+          <span style="float:right;">
+            <a href="{% url 'finance:category_delete' category.id %}">Delete</a>
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% else %}
+  <p>No categories yet.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Transfer" %}{% endblock %}
+
+{% block content %}
+<div class="form-card">
+  <h2>{% trans "Transfer Money" %}</h2>
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="form-group">
+      {{ form.from_wallet.label_tag }}
+      {{ form.from_wallet }}
+    </div>
+
+    <div class="form-group">
+      {{ form.to_wallet.label_tag }}
+      {{ form.to_wallet }}
+    </div>
+
+    <div class="form-group">
+      {{ form.amount_from.label_tag }}
+      {{ form.amount_from }}
+    </div>
+
+    {% if form.description %}
+    <div class="form-group">
+      {{ form.description.label_tag }}
+      {{ form.description }}
+    </div>
+    {% endif %}
+
+    <button type="submit" class="btn btn-primary">
+      {% trans "Transfer" %}
+    </button>
+  </form>
+</div>
+{% endblock %}

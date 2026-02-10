@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Reports" %}{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  <h1>{% trans "Reports" %}</h1>
+
+  <form method="get" class="card report-filters">
+    <div class="grid-4">
+      <div>
+        <label>Type</label>
+        <select name="type">
+          <option value="income" {% if report_type == "income" %}selected{% endif %}>Income</option>
+          <option value="expense" {% if report_type == "expense" %}selected{% endif %}>Expense</option>
+        </select>
+      </div>
+  
+      <div>
+        <label>Period</label>
+        <select name="period" id="period-select">
+          <option value="daily">Today</option>
+          <option value="weekly">Last 7 days</option>
+          <option value="monthly">This month</option>
+          <option value="custom" {% if period == "custom" %}selected{% endif %}>Custom</option>
+        </select>
+      </div>
+  
+      <div>
+        <label>From</label>
+        <input type="date" name="start" value="{{ start }}">
+      </div>
+  
+      <div>
+        <label>To</label>
+        <input type="date" name="end" value="{{ end }}">
+      </div>
+    </div>
+  
+    <button class="btn-primary mt-16">Generate</button>
+  </form>
+</div>
+
+<script>
+  const periodSelect = document.getElementById("period-select");
+  const startWrapper = document.getElementById("start-date-wrapper");
+  const endWrapper = document.getElementById("end-date-wrapper");
+
+  function toggleCustomDates() {
+    if (periodSelect.value === "custom") {
+      startWrapper.style.display = "block";
+      endWrapper.style.display = "block";
+    } else {
+      startWrapper.style.display = "none";
+      endWrapper.style.display = "none";
+    }
+  }
+
+  periodSelect.addEventListener("change", toggleCustomDates);
+</script>
+{% endblock %}

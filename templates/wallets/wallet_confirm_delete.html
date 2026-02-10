@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Delete Wallet{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+  <h2>Delete Wallet</h2>
+
+  <p>
+    Are you sure you want to delete
+    <strong>{{ wallet.name }}</strong>?
+  </p>
+
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" style="background:#dc2626;">Delete</button>
+  </form>
+
+  <p class="hint">
+    <a href="{% url 'wallets:list' %}">Cancel</a>
+  </p>
+</div>
+{% endblock %}

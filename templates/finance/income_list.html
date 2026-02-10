@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Income{% endblock %}
+
+{% block content %}
+<h2>Income</h2>
+
+<div style="margin-bottom:20px;">
+  <a href="{% url 'finance:income_create' %}">
+    <button style="width:auto; padding:10px 16px;">+ Add Income</button>
+  </a>
+</div>
+
+{% if incomes %}
+  <div class="card">
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr style="text-align:left; border-bottom:1px solid #e5e7eb;">
+          <th>Date</th>
+          <th>Category</th>
+          <th>Wallet</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for income in incomes %}
+        <tr style="border-bottom:1px solid #f1f5f9;">
+          <td>{{ income.date }}</td>
+          <td>{{ income.category }}</td>
+          <td>{{ income.wallet.name }}</td>
+          <td class="green">+ {{ income.amount }} {{ income.currency }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <p>No income records yet.</p>
+{% endif %}
+{% endblock %}
