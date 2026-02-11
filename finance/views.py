@@ -279,14 +279,14 @@ def transaction_list(request):
             )
 
         if date_from:
-            incomes = incomes.filter(created_at__date__gte=date_from)
-            expenses = expenses.filter(created_at__date__gte=date_from)
-            transfers = transfers.filter(created_at__date__gte=date_from)
+            incomes = incomes.filter(date__gte=date_from)
+            expenses = expenses.filter(date__gte=date_from)
+            transfers = transfers.filter(date__gte=date_from)
 
         if date_to:
-            incomes = incomes.filter(created_at__date__lte=date_to)
-            expenses = expenses.filter(created_at__date__lte=date_to)
-            transfers = transfers.filter(created_at__date__lte=date_to)
+            incomes = incomes.filter(date__lte=date_to)
+            expenses = expenses.filter(date__lte=date_to)
+            transfers = transfers.filter(date__lte=date_to)
 
     transactions = []
 
@@ -311,7 +311,7 @@ def transaction_list(request):
             t.tx_type = "transfer"
             transactions.append(t)
 
-    transactions.sort(key=lambda x: x.created_at, reverse=True)
+    transactions.sort(key=lambda x: x.date, reverse=True)
 
     return render(
         request,

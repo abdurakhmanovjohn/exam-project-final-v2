@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 
 User = settings.AUTH_USER_MODEL
 
@@ -65,9 +66,10 @@ class Transfer(models.Model):
     exchange_rate = models.DecimalField(max_digits=15, decimal_places=6)
 
     created_at = models.DateTimeField(auto_now_add=True)
+    date = models.DateField(default=timezone.now)
 
     class Meta:
-        ordering = ["-created_at"]
+        ordering = ["date", "-created_at"]
 
     def __str__(self):
         return f"{self.from_wallet} → {self.to_wallet}"
@@ -78,5 +80,5 @@ class Transfer(models.Model):
             "details": f"{self.from_wallet.name} → {self.to_wallet.name}",
             "amount": self.amount_from,
             "currency": self.from_wallet.currency,
-            "date": self.created_at,
+            "date": self.date,
         }
