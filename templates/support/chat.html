@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="chat-wrapper">
+
+  <div class="chat-header">
+    <h3>Support</h3>
+  </div>
+
+  <div class="chat-body">
+    {% for msg in messages %}
+      <div class="chat-message {% if msg.is_admin %}admin{% else %}user{% endif %}">
+        <div class="chat-bubble">
+          <div class="chat-text">
+            {{ msg.text }}
+          </div>
+          <div class="chat-time">
+            {{ msg.created_at|date:"H:i" }}
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty-chat">
+        No messages yet.
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="chat-footer">
+    <form method="post" class="chat-form">
+      {% csrf_token %}
+      {{ form.text }}
+      <button type="submit" class="btn-send">Send</button>
+    </form>
+  </div>
+
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const textarea = document.querySelector(".chat-form textarea");
+
+    function autoResize() {
+      textarea.style.height = "auto";
+      textarea.style.height = textarea.scrollHeight + "px";
+    }
+
+    textarea.addEventListener("input", autoResize);
+
+    // trigger once in case there is prefilled text
+    autoResize();
+  });
+</script>
+{% endblock %}

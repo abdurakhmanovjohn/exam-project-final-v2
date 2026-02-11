@@ -1,58 +1,40 @@
-# pyright: reportIndexIssue=false
-# pyright:reportArgumentType=false
-
 from django.conf import settings
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 
 
-class SupportTicket(models.Model):
-    STATUS_OPEN = "open"
-    STATUS_ANSWERED = "answered"
-    STATUS_CLOSED = "closed"
+class Conversation(models.Model):
+  user = models.OneToOneField(
+    settings.AUTH_USER_MODEL,
+    on_delete=models.CASCADE,
+    related_name="support_conversation"
+  )
 
-    STATUS_CHOICES = [
-        (STATUS_OPEN, _("Open")),
-        (STATUS_ANSWERED, _("Answered")),
-        (STATUS_CLOSED, _("Closed")),
-    ]
+  created_at = models.DateTimeField(auto_now_add=True)
+  updated_at = models.DateTimeField(auto_now=True)
 
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="support_tickets",
-    )
-    subject = models.CharField(max_length=200)
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default=STATUS_OPEN,
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self):
-        return f"{self.subject} ({self.status})"
+  def __str__(self):
+    return f"Support chat with {self.user}"
 
 
-class SupportMessage(models.Model):
-    ticket = models.ForeignKey(
-        SupportTicket,
-        on_delete=models.CASCADE,
-        related_name="messages",
-    )
-    sender = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-    )
-    message = models.TextField()
-    is_admin = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+class Message(models.Model):
+  conversation = models.ForeignKey(
+    Conversation,
+    on_delete=models.CASCADE,
+    related_name="messages"
+  )
 
-    class Meta:
-        ordering = ["created_at"]
+  sender = models.ForeignKey(
+    settings.AUTH_USER_MODEL,
+    on_delete=models.CASCADE
+  )
 
-    def __str__(self):
-        return self.message[:40]
+  text = models.TextField()
+  is_admin = models.BooleanField(default=False)
+
+  created_at = models.DateTimeField(auto_now_add=True)
+
+  class Meta:
+    ordering = ["created_at"]
+
+  def __str__(self):
+    return f"{self.sender} - {self.created_at}"

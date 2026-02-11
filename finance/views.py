@@ -190,9 +190,6 @@ def category_delete(request, pk):
 
 @login_required
 def reports(request):
-    chart = None
-    data = None
-
     report_type = request.GET.get("type", "income")
     period = request.GET.get("period", "monthly")
 
@@ -225,7 +222,6 @@ def reports(request):
             end_date = None
 
     model = Income if report_type == "income" else Expense
-
     qs = model.objects.filter(user=request.user)
 
     if start_date and end_date:
@@ -233,10 +229,18 @@ def reports(request):
 
     qs = qs.values("category__name").annotate(total=Sum("amount")).order_by("-total")
 
-    if qs.exists():
-        labels = [i["category__name"] or "Other" for i in qs]
-        sizes = [float(i["total"]) for i in qs]
-        data = zip(labels, sizes)
+    total_amount = sum(item["total"] for item in qs) or 0
+
+    report_data = []
+    for item in qs:
+        percent = (item["total"] / total_amount * 100) if total_amount else 0
+        report_data.append(
+            {
+                "category": item["category__name"] or "Other",
+                "amount": item["total"],
+                "percent": round(percent, 1),
+            }
+        )
 
     return render(
         request,
@@ -244,8 +248,8 @@ def reports(request):
         {
             "report_type": report_type,
             "period": period,
-            "chart": chart,
-            "data": data,
+            "data": report_data,
+            "total": total_amount,
             "start": request.GET.get("start", ""),
             "end": request.GET.get("end", ""),
         },

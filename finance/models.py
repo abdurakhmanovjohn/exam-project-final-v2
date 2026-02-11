@@ -2,6 +2,7 @@
 
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from wallets.models import Wallet
@@ -65,10 +66,12 @@ class Income(models.Model):
         max_length=3,
         choices=[("UZS", "UZS"), ("USD", "USD"), ("EUR", "EUR")],
     )
-    date = models.DateField()
+    date = models.DateField(default=timezone.now)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        verbose_name = "category"
+        verbose_name_plural = "categories"
         ordering = ["-date", "-created_at"]
 
     def __str__(self):
@@ -99,7 +102,7 @@ class Expense(models.Model):
         max_length=3,
         choices=[("UZS", "UZS"), ("USD", "USD"), ("EUR", "EUR")],
     )
-    date = models.DateField()
+    date = models.DateField(default=timezone.now())
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

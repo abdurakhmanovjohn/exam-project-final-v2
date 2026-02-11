@@ -7,39 +7,73 @@
 <div class="page-container">
   <h1>{% trans "Reports" %}</h1>
 
+  <!-- Filters -->
   <form method="get" class="card report-filters">
     <div class="grid-4">
+
       <div>
-        <label>Type</label>
+        <label>{% trans "Type" %}</label>
         <select name="type">
-          <option value="income" {% if report_type == "income" %}selected{% endif %}>Income</option>
-          <option value="expense" {% if report_type == "expense" %}selected{% endif %}>Expense</option>
+          <option value="income" {% if report_type == "income" %}selected{% endif %}>
+            {% trans "Income" %}
+          </option>
+          <option value="expense" {% if report_type == "expense" %}selected{% endif %}>
+            {% trans "Expense" %}
+          </option>
         </select>
       </div>
-  
+
       <div>
-        <label>Period</label>
+        <label>{% trans "Period" %}</label>
         <select name="period" id="period-select">
-          <option value="daily">Today</option>
-          <option value="weekly">Last 7 days</option>
-          <option value="monthly">This month</option>
+          <option value="daily" {% if period == "daily" %}selected{% endif %}>Today</option>
+          <option value="weekly" {% if period == "weekly" %}selected{% endif %}>Last 7 days</option>
+          <option value="monthly" {% if period == "monthly" %}selected{% endif %}>This month</option>
           <option value="custom" {% if period == "custom" %}selected{% endif %}>Custom</option>
         </select>
       </div>
-  
-      <div>
-        <label>From</label>
+
+      <div id="start-date-wrapper" {% if period != "custom" %}style="display:none"{% endif %}>
+        <label>{% trans "From" %}</label>
         <input type="date" name="start" value="{{ start }}">
       </div>
-  
-      <div>
-        <label>To</label>
+
+      <div id="end-date-wrapper" {% if period != "custom" %}style="display:none"{% endif %}>
+        <label>{% trans "To" %}</label>
         <input type="date" name="end" value="{{ end }}">
       </div>
+
     </div>
-  
-    <button class="btn-primary mt-16">Generate</button>
+
+    <button class="btn-primary mt-16">{% trans "Generate" %}</button>
   </form>
+
+  {% if data %}
+  <div class="card mt-24">
+    <h3>{% trans "Total" %}: {{ total }}</h3>
+
+    <table class="table mt-12">
+      <thead>
+        <tr>
+          <th>{% trans "Category" %}</th>
+          <th>{% trans "Amount" %}</th>
+          <th>{% trans "Share" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in data %}
+        <tr>
+          <td>{{ row.category }}</td>
+          <td>{{ row.amount }}</td>
+          <td>{{ row.percent }}%</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="muted mt-24">{% trans "No data for selected period" %}</p>
+  {% endif %}
 </div>
 
 <script>
@@ -47,16 +81,10 @@
   const startWrapper = document.getElementById("start-date-wrapper");
   const endWrapper = document.getElementById("end-date-wrapper");
 
-  function toggleCustomDates() {
-    if (periodSelect.value === "custom") {
-      startWrapper.style.display = "block";
-      endWrapper.style.display = "block";
-    } else {
-      startWrapper.style.display = "none";
-      endWrapper.style.display = "none";
-    }
-  }
-
-  periodSelect.addEventListener("change", toggleCustomDates);
+  periodSelect.addEventListener("change", () => {
+    const show = periodSelect.value === "custom";
+    startWrapper.style.display = show ? "block" : "none";
+    endWrapper.style.display = show ? "block" : "none";
+  });
 </script>
 {% endblock %}
