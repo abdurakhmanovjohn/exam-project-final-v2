@@ -1,28 +1,18 @@
 # pyright: reportAttributeAccessIssue=false
 
 
-import base64
-import io
+from core.services.currency import convert_amount
 from datetime import timedelta
 
 import matplotlib
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
 from django.utils import timezone
 
 from .models import Expense, Income
 
-matplotlib.use("Agg")
-import base64
-import io
 from datetime import datetime, timedelta
-from itertools import chain
-
-import matplotlib
-import matplotlib.pyplot as plt
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
@@ -190,12 +180,11 @@ def category_delete(request, pk):
 
 @login_required
 def reports(request):
-    report_type = request.GET.get("type", "income")
+    report_type = request.GET.get("type", "all")
     period = request.GET.get("period", "monthly")
+    base_currency = request.GET.get("currency", "UZS")
 
     today = timezone.now().date()
-    start_date = None
-    end_date = None
 
     if period == "daily":
         start_date = today
@@ -211,45 +200,77 @@ def reports(request):
 
     elif period == "custom":
         try:
-            start_date = timezone.datetime.strptime(
+            start_date = datetime.strptime(
                 request.GET.get("start"), "%Y-%m-%d"
             ).date()
-            end_date = timezone.datetime.strptime(
+            end_date = datetime.strptime(
                 request.GET.get("end"), "%Y-%m-%d"
             ).date()
         except (TypeError, ValueError):
             start_date = None
             end_date = None
+    else:
+        start_date = None
+        end_date = None
 
-    model = Income if report_type == "income" else Expense
-    qs = model.objects.filter(user=request.user)
+    incomes = Income.objects.filter(user=request.user)
+    expenses = Expense.objects.filter(user=request.user)
 
     if start_date and end_date:
-        qs = qs.filter(date__range=(start_date, end_date))
+        incomes = incomes.filter(date__range=(start_date, end_date))
+        expenses = expenses.filter(date__range=(start_date, end_date))
 
-    qs = qs.values("category__name").annotate(total=Sum("amount")).order_by("-total")
+    income_total = 0
+    expense_total = 0
 
-    total_amount = sum(item["total"] for item in qs) or 0
+    income_by_category = {}
+    expense_by_category = {}
 
-    report_data = []
-    for item in qs:
-        percent = (item["total"] / total_amount * 100) if total_amount else 0
-        report_data.append(
-            {
-                "category": item["category__name"] or "Other",
-                "amount": item["total"],
-                "percent": round(percent, 1),
-            }
+    for inc in incomes:
+        converted = convert_amount(
+            inc.amount, inc.currency, base_currency
         )
+        income_total += converted
+        key = inc.category.name if inc.category else "Other"
+        income_by_category[key] = income_by_category.get(key, 0) + converted
+
+    for exp in expenses:
+        converted = convert_amount(
+            exp.amount, exp.currency, base_currency
+        )
+        expense_total += converted
+        key = exp.category.name if exp.category else "Other"
+        expense_by_category[key] = expense_by_category.get(key, 0) + converted
+
+    net = income_total - expense_total
+
+    def build_percentage(data_dict, total):
+        result = []
+        for name, amount in data_dict.items():
+            percent = (amount / total * 100) if total else 0
+            result.append(
+                {
+                    "category": name,
+                    "amount": round(amount, 2),
+                    "percent": round(percent, 1),
+                }
+            )
+        return sorted(result, key=lambda x: x["amount"], reverse=True)
+
+    income_data = build_percentage(income_by_category, income_total)
+    expense_data = build_percentage(expense_by_category, expense_total)
 
     return render(
         request,
         "finance/reports.html",
         {
-            "report_type": report_type,
+            "income_total": round(income_total, 2),
+            "expense_total": round(expense_total, 2),
+            "net": round(net, 2),
+            "income_data": income_data,
+            "expense_data": expense_data,
             "period": period,
-            "data": report_data,
-            "total": total_amount,
+            "base_currency": base_currency,
             "start": request.GET.get("start", ""),
             "end": request.GET.get("end", ""),
         },

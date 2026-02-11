@@ -1,90 +1,158 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Reports" %}{% endblock %}
+{% block title %}Reports{% endblock %}
 
 {% block content %}
 <div class="page-container">
-  <h1>{% trans "Reports" %}</h1>
+
+  <h1 class="page-title">Financial Report</h1>
 
   <!-- Filters -->
   <form method="get" class="card report-filters">
-    <div class="grid-4">
+  <div class="filter-row">
 
-      <div>
-        <label>{% trans "Type" %}</label>
-        <select name="type">
-          <option value="income" {% if report_type == "income" %}selected{% endif %}>
-            {% trans "Income" %}
-          </option>
-          <option value="expense" {% if report_type == "expense" %}selected{% endif %}>
-            {% trans "Expense" %}
-          </option>
-        </select>
-      </div>
-
-      <div>
-        <label>{% trans "Period" %}</label>
-        <select name="period" id="period-select">
-          <option value="daily" {% if period == "daily" %}selected{% endif %}>Today</option>
-          <option value="weekly" {% if period == "weekly" %}selected{% endif %}>Last 7 days</option>
-          <option value="monthly" {% if period == "monthly" %}selected{% endif %}>This month</option>
-          <option value="custom" {% if period == "custom" %}selected{% endif %}>Custom</option>
-        </select>
-      </div>
-
-      <div id="start-date-wrapper" {% if period != "custom" %}style="display:none"{% endif %}>
-        <label>{% trans "From" %}</label>
-        <input type="date" name="start" value="{{ start }}">
-      </div>
-
-      <div id="end-date-wrapper" {% if period != "custom" %}style="display:none"{% endif %}>
-        <label>{% trans "To" %}</label>
-        <input type="date" name="end" value="{{ end }}">
-      </div>
-
+    <div>
+      <label>Period</label>
+      <select name="period" id="period-select">
+        <option value="daily" {% if period == "daily" %}selected{% endif %}>Today</option>
+        <option value="weekly" {% if period == "weekly" %}selected{% endif %}>Last 7 Days</option>
+        <option value="monthly" {% if period == "monthly" %}selected{% endif %}>This Month</option>
+        <option value="custom" {% if period == "custom" %}selected{% endif %}>Custom</option>
+      </select>
     </div>
 
-    <button class="btn-primary mt-16">{% trans "Generate" %}</button>
-  </form>
+    <div>
+      <label>Currency</label>
+      <select name="currency">
+        <option value="UZS" {% if base_currency == "UZS" %}selected{% endif %}>UZS</option>
+        <option value="USD" {% if base_currency == "USD" %}selected{% endif %}>USD</option>
+        <option value="EUR" {% if base_currency == "EUR" %}selected{% endif %}>EUR</option>
+      </select>
+    </div>
 
-  {% if data %}
-  <div class="card mt-24">
-    <h3>{% trans "Total" %}: {{ total }}</h3>
+    <!-- Custom Date Inputs -->
+    <div id="start-wrapper" {% if period != "custom" %}style="display:none"{% endif %}>
+      <label>From</label>
+      <input type="date" name="start" value="{{ start }}">
+    </div>
 
-    <table class="table mt-12">
-      <thead>
-        <tr>
-          <th>{% trans "Category" %}</th>
-          <th>{% trans "Amount" %}</th>
-          <th>{% trans "Share" %}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for row in data %}
-        <tr>
-          <td>{{ row.category }}</td>
-          <td>{{ row.amount }}</td>
-          <td>{{ row.percent }}%</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div id="end-wrapper" {% if period != "custom" %}style="display:none"{% endif %}>
+      <label>To</label>
+      <input type="date" name="end" value="{{ end }}">
+    </div>
+
+    <div>
+      <button class="btn-primary" type="submit">Generate</button>
+    </div>
+
   </div>
-  {% else %}
-    <p class="muted mt-24">{% trans "No data for selected period" %}</p>
-  {% endif %}
+</form>
+
+  <!-- Totals -->
+  <div class="stats-grid mt-24">
+
+    <div class="stat-card success">
+      <p>Total Income</p>
+      <h2 class="green">
+        + {{ income_total }} {{ base_currency }}
+      </h2>
+    </div>
+
+    <div class="stat-card danger">
+      <p>Total Expense</p>
+      <h2 class="red">
+        − {{ expense_total }} {{ base_currency }}
+      </h2>
+    </div>
+
+    <div class="stat-card">
+      <p>Net Result</p>
+      <h2 class="{% if net >= 0 %}green{% else %}red{% endif %}">
+        {{ net }} {{ base_currency }}
+      </h2>
+    </div>
+
+  </div>
+
+  <!-- Income Breakdown -->
+  <div class="card mt-24">
+    <h3>Income Breakdown</h3>
+
+    {% if income_data %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th class="text-right">Amount</th>
+            <th class="text-right">%</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in income_data %}
+            <tr>
+              <td>{{ row.category }}</td>
+              <td class="text-right green">
+                + {{ row.amount }} {{ base_currency }}
+              </td>
+              <td class="text-right">
+                {{ row.percent }}%
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="muted">No income for selected period.</p>
+    {% endif %}
+  </div>
+
+  <!-- Expense Breakdown -->
+  <div class="card mt-24">
+    <h3>Expense Breakdown</h3>
+
+    {% if expense_data %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th class="text-right">Amount</th>
+            <th class="text-right">%</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in expense_data %}
+            <tr>
+              <td>{{ row.category }}</td>
+              <td class="text-right red">
+                − {{ row.amount }} {{ base_currency }}
+              </td>
+              <td class="text-right">
+                {{ row.percent }}%
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="muted">No expenses for selected period.</p>
+    {% endif %}
+  </div>
+
 </div>
 
 <script>
   const periodSelect = document.getElementById("period-select");
-  const startWrapper = document.getElementById("start-date-wrapper");
-  const endWrapper = document.getElementById("end-date-wrapper");
+  const startWrapper = document.getElementById("start-wrapper");
+  const endWrapper = document.getElementById("end-wrapper");
 
-  periodSelect.addEventListener("change", () => {
-    const show = periodSelect.value === "custom";
-    startWrapper.style.display = show ? "block" : "none";
-    endWrapper.style.display = show ? "block" : "none";
-  });
+  function toggleCustomDates() {
+    const isCustom = periodSelect.value === "custom";
+    startWrapper.style.display = isCustom ? "block" : "none";
+    endWrapper.style.display = isCustom ? "block" : "none";
+  }
+
+  periodSelect.addEventListener("change", toggleCustomDates);
 </script>
+
 {% endblock %}
