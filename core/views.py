@@ -1,10 +1,8 @@
 # pyright: reportAttributeAccessIssue=false
 
-from decimal import Decimal
 
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils import timezone
 
 from core.services.currency import convert_to_uzs
@@ -52,3 +50,8 @@ def dashboard(request):
             "base_currency": "UZS",
         },
     )
+
+@login_required
+def dashboard(request):
+    if request.user.is_staff:
+        return redirect("support:admin_conversations")

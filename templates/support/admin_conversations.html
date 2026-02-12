@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Support Conversations</h2>
+
+<ul class="ticket-list">
+  {% for convo in conversations %}
+    <li class="ticket-item">
+      <a href="{% url 'support:admin_chat_detail' convo.id %}">
+        <div class="ticket-info">
+          <strong>{{ convo.user }}</strong>
+          <span class="ticket-date">
+            {{ convo.updated_at|date:"Y-m-d H:i" }}
+          </span>
+        </div>
+      </a>
+    </li>
+  {% empty %}
+    <p>No conversations yet.</p>
+  {% endfor %}
+</ul>
+{% endblock %}

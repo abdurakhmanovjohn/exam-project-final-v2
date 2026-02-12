@@ -36,5 +36,10 @@ class Message(models.Model):
   class Meta:
     ordering = ["created_at"]
 
+  def save(self, *args, **kwargs):
+    super().save(*args, **kwargs)
+    self.conversation.updated_at = self.created_at
+    self.conversation.save(update_fields=["updated_at"])
+
   def __str__(self):
     return f"{self.sender} - {self.created_at}"
