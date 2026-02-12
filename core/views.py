@@ -1,6 +1,5 @@
 # pyright: reportAttributeAccessIssue=false
 
-
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.utils import timezone
@@ -12,28 +11,32 @@ from wallets.models import Wallet
 
 @login_required
 def dashboard(request):
+    if request.user.is_staff:
+        return redirect("support:admin_conversations")
+
     today = timezone.now().date()
     month_start = today.replace(day=1)
 
-    total_balance_uzs = 0
     wallets = Wallet.objects.filter(user=request.user)
 
+    total_balance_uzs = 0
     for wallet in wallets:
         total_balance_uzs += convert_to_uzs(wallet.balance, wallet.currency)
 
     income_total_uzs = 0
     incomes = Income.objects.filter(
         user=request.user,
-        created_at__gte=month_start,
+        date__gte=month_start, 
     )
 
     for income in incomes:
         income_total_uzs += convert_to_uzs(income.amount, income.currency)
 
+
     expense_total_uzs = 0
     expenses = Expense.objects.filter(
         user=request.user,
-        created_at__gte=month_start,
+        date__gte=month_start,  
     )
 
     for expense in expenses:
@@ -50,8 +53,3 @@ def dashboard(request):
             "base_currency": "UZS",
         },
     )
-
-@login_required
-def dashboard(request):
-    if request.user.is_staff:
-        return redirect("support:admin_conversations")

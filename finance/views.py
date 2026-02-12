@@ -4,7 +4,6 @@
 from core.services.currency import convert_amount
 from datetime import timedelta
 
-import matplotlib
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 
@@ -22,8 +21,6 @@ from wallets.models import Transfer
 from .forms import CategoryForm, ExpenseForm, IncomeForm, TransactionFilterForm
 from .models import Expense, Income
 from .services import apply_expense, apply_income
-
-matplotlib.use("Agg")
 
 
 @login_required
