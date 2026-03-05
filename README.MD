@@ -64,14 +64,3 @@ Run the development server:
 Bash
 python manage.py runserver
 The application will be available at http://127.0.0.1:8000/.
-
-💡 Future Enhancements
-If you are looking to expand this project further for production or to learn new concepts, consider the following additions:
-
-Database Migration: Swap out SQLite for a robust relational database like PostgreSQL for production deployments.
-
-API Integration: Build out RESTful endpoints (using Django REST Framework) to allow a mobile app or frontend framework (like React/Vue) to consume the tracker's data.
-
-Containerization: Add a Dockerfile and docker-compose.yml to easily spin up the app and its database in isolated environments.
-
-Analytics Dashboard: Integrate a charting library (like Chart.js) into the templates to visualize spending habits over time.
